@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "target": "ESNext",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@abi/*": ["abi/*"],
+      "@deployments/*": ["deployments/*"],
+      "@network/*": ["network/*"],
+      "@typechain": ["typechain"]
+    }
+  },
+  "include": ["*.ts", "artifacts", "deploy", "network"],
+  "exclude": ["node_modules"]
+}

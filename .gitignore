@@ -1,0 +1,7 @@
+.env
+artifacts
+cache
+worker/db/*.db
+worker/*.log
+node_modules
+typechain
