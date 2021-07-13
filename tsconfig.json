@@ -10,12 +10,14 @@
     "forceConsistentCasingInFileNames": true,
     "paths": {
       "@abi/*": ["abi/*"],
+      "@db": ["db"],
       "@deployments/*": ["deployments/*"],
+      "@model/*": ["model/*"],
       "@network/*": ["network/*"],
       "@typechain": ["typechain"],
       "@util/*": ["util/*"]
     }
   },
-  "include": ["*.ts", "artifacts", "deploy", "network", "util", "worker"],
+  "include": ["**/*.ts", "artifacts"],
   "exclude": ["node_modules"]
 }
