@@ -12,9 +12,10 @@
       "@abi/*": ["abi/*"],
       "@deployments/*": ["deployments/*"],
       "@network/*": ["network/*"],
-      "@typechain": ["typechain"]
+      "@typechain": ["typechain"],
+      "@util/*": ["util/*"]
     }
   },
-  "include": ["*.ts", "artifacts", "deploy", "network"],
+  "include": ["*.ts", "artifacts", "deploy", "network", "util", "worker"],
   "exclude": ["node_modules"]
 }

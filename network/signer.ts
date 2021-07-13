@@ -1,5 +1,6 @@
 import { Wallet } from "ethers";
-import { kovanProvider, rinkebyProvider } from "./provider";
+import Chain, { getChains } from "./chain";
+import provider from "./provider";
 
 const walletAddress = process.env.WALLET_ADDRESS;
 const walletPrivateKey = process.env.WALLET_PRIVATE_KEY;
@@ -9,5 +10,12 @@ if (!walletAddress || !walletPrivateKey) {
   process.exit(1);
 }
 
-export const kovanSigner = new Wallet(walletPrivateKey, kovanProvider);
-export const rinkebySigner = new Wallet(walletPrivateKey, rinkebyProvider);
+const signer: {
+  [chain in Chain]: Wallet;
+} = {} as any;
+
+for (const chain of getChains()) {
+  signer[chain] = new Wallet(walletPrivateKey, provider[chain]);
+}
+
+export default signer;

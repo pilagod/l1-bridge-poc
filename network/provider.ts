@@ -1,10 +1,13 @@
 import { ethers } from "ethers";
-import config from "@network/config";
+import Chain, { getChains } from "./chain";
+import config from "./config";
 
-export const kovanProvider = new ethers.providers.JsonRpcProvider(
-  config.kovan.url
-);
+const provider: {
+  [chain in Chain]: ethers.providers.JsonRpcProvider;
+} = {} as any;
 
-export const rinkebyProvider = new ethers.providers.JsonRpcProvider(
-  config.rinkeby.url
-);
+for (const chain of getChains()) {
+  provider[chain] = new ethers.providers.JsonRpcProvider(config[chain].url);
+}
+
+export default provider;

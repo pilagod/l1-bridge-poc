@@ -1,14 +1,17 @@
-require("dotenv").config();
+import Chain, { getChains, getChainName } from "./chain";
 
-const network = {
-  kovan: {
-    chainId: 42,
-    url: process.env.KOVAN_TESTNET_RPC || "",
-  },
-  rinkeby: {
-    chainId: 4,
-    url: process.env.RINKEBY_TESTNET_RPC || "",
-  },
-};
+const network: {
+  [chain in Chain]: {
+    chainId: number;
+    url: string;
+  };
+} = {} as any;
+
+for (const chain of getChains()) {
+  network[chain] = {
+    chainId: chain,
+    url: process.env[`${getChainName(chain).toUpperCase()}_RPC_URL`] || "",
+  };
+}
 
 export default network;

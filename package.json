@@ -6,7 +6,7 @@
   "author": "pilagod <pilagooood@gmail.com>",
   "license": "ISC",
   "scripts": {
-    "execute": "ts-node -r tsconfig-paths/register",
+    "execute": "ts-node -r tsconfig-paths/register -r dotenv/config",
     "build": "rm -rf artifacts cache typechain && hardhat compile",
     "deploy-kovan": "hardhat --network kovan deploy --no-compile",
     "deploy-rinkeby": "hardhat --network rinkeby deploy --no-compile",
