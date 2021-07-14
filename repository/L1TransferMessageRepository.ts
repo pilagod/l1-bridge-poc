@@ -4,6 +4,7 @@ import L1TransferMessage, {
   L1TransferMessageStatus,
   L1TransferMessageType,
 } from "@model/L1TransferMessage";
+import Chain from "@network/chain";
 
 export type L1TransferMessageQuery = {
   status?: L1TransferMessageStatus;
@@ -86,14 +87,14 @@ export default class L1TransferMessageRepository {
     return [
       msg.type,
       msg.status,
-      msg.from.chainId,
+      msg.from.chain,
       msg.from.address,
       msg.from.blockNumber
         ? msg.from.blockNumber.toString()
         : msg.from.blockNumber,
       msg.from.blockHash,
       msg.from.txHash,
-      msg.to.chainId,
+      msg.to.chain,
       msg.to.address,
       msg.to.blockNumber ? msg.to.blockNumber.toString() : msg.to.blockNumber,
       msg.to.blockHash,
@@ -110,7 +111,7 @@ export default class L1TransferMessageRepository {
       type: row.type as L1TransferMessageType,
       status: row.status as L1TransferMessageStatus,
       from: {
-        chainId: row.from_chain_id,
+        chain: row.from_chain_id as Chain,
         address: row.from_address,
         blockNumber: row.from_block_number
           ? BigNumber.from(row.from_block_number)
@@ -119,7 +120,7 @@ export default class L1TransferMessageRepository {
         txHash: row.from_tx_hash,
       },
       to: {
-        chainId: row.to_chain_id,
+        chain: row.to_chain_id as Chain,
         address: row.to_address,
         blockNumber: row.to_block_number
           ? BigNumber.from(row.to_block_number)

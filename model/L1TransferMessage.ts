@@ -1,4 +1,5 @@
 import { BigNumber } from "ethers";
+import Chain from "@network/chain";
 
 export enum L1TransferMessageType {
   Deposit = "Deposit",
@@ -13,7 +14,7 @@ export enum L1TransferMessageStatus {
 }
 
 export type L1TransferMessageParty = {
-  chainId: number;
+  chain: Chain;
   address: string;
   blockNumber?: BigNumber;
   blockHash?: string;

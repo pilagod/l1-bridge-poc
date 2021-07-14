@@ -11,7 +11,8 @@
     "deploy-kovan": "hardhat --network kovan deploy --no-compile",
     "deploy-rinkeby": "hardhat --network rinkeby deploy --no-compile",
     "migration:create": "db-migrate -e local create",
-    "migration:up": "db-migrate -e local up"
+    "migration:up": "db-migrate -e local up",
+    "test": "mocha"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers",
