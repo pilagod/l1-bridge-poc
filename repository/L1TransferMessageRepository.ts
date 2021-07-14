@@ -4,7 +4,7 @@ import L1TransferMessage, {
   L1TransferMessageStatus,
   L1TransferMessageType,
 } from "@model/L1TransferMessage";
-import Chain from "@network/chain";
+import { getChain } from "@network/chain";
 
 export type L1TransferMessageQuery = {
   status?: L1TransferMessageStatus;
@@ -111,7 +111,7 @@ export default class L1TransferMessageRepository {
       type: row.type as L1TransferMessageType,
       status: row.status as L1TransferMessageStatus,
       from: {
-        chain: row.from_chain_id as Chain,
+        chain: getChain(row.from_chain_id),
         address: row.from_address,
         blockNumber: row.from_block_number
           ? BigNumber.from(row.from_block_number)
@@ -120,7 +120,7 @@ export default class L1TransferMessageRepository {
         txHash: row.from_tx_hash,
       },
       to: {
-        chain: row.to_chain_id as Chain,
+        chain: getChain(row.to_chain_id),
         address: row.to_address,
         blockNumber: row.to_block_number
           ? BigNumber.from(row.to_block_number)

@@ -3,6 +3,7 @@ import L1TransferMessage, {
   L1TransferMessageStatus,
   L1TransferMessageType,
 } from "@model/L1TransferMessage";
+import { getChain } from "@network/chain";
 import { TKN } from "@network/contract";
 import { l1TransferMessageRepository } from "@repository";
 
@@ -27,14 +28,14 @@ async function depositHandler(
       type: L1TransferMessageType.Deposit,
       status: L1TransferMessageStatus.Sent,
       from: {
-        chainId: fromChainId.toNumber(),
+        chain: getChain(fromChainId.toNumber()),
         address: from,
         blockNumber: BigNumber.from(event.blockNumber),
         blockHash: event.blockHash,
         txHash: event.transactionHash,
       },
       to: {
-        chainId: toChainId.toNumber(),
+        chain: getChain(toChainId.toNumber()),
         address: to,
       },
       amount,
@@ -55,14 +56,14 @@ async function withdrawHandler(
       type: L1TransferMessageType.Withdraw,
       status: L1TransferMessageStatus.Sent,
       from: {
-        chainId: fromChainId.toNumber(),
+        chain: fromChainId.toNumber(),
         address: from,
         blockNumber: BigNumber.from(event.blockNumber),
         blockHash: event.blockHash,
         txHash: event.transactionHash,
       },
       to: {
-        chainId: toChainId.toNumber(),
+        chain: toChainId.toNumber(),
         address: to,
       },
       amount,
