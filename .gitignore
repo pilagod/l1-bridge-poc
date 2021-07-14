@@ -1,6 +1,7 @@
 .env
 artifacts
 cache
+db/local.db
 worker/db/*.db
 worker/*.log
 node_modules

@@ -14,6 +14,7 @@
       "@deployments/*": ["deployments/*"],
       "@model/*": ["model/*"],
       "@network/*": ["network/*"],
+      "@repository": ["repository"],
       "@typechain": ["typechain"],
       "@util/*": ["util/*"]
     }
