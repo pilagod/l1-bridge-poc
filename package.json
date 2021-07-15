@@ -8,8 +8,9 @@
   "scripts": {
     "execute": "ts-node -r tsconfig-paths/register -r dotenv/config",
     "build": "rm -rf artifacts cache typechain && hardhat compile",
-    "deploy-kovan": "hardhat --network kovan deploy --no-compile",
-    "deploy-rinkeby": "hardhat --network rinkeby deploy --no-compile",
+    "deploy:all": "yarn deploy:kovan && yarn deploy:rinkeby",
+    "deploy:kovan": "hardhat --network kovan deploy --no-compile",
+    "deploy:rinkeby": "hardhat --network rinkeby deploy --no-compile",
     "migration:create": "db-migrate -e local create",
     "migration:up": "db-migrate -e local up",
     "test": "mocha"

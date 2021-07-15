@@ -2,21 +2,23 @@ import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 
+import "dotenv/config";
 import "hardhat-deploy";
 import "tsconfig-paths/register";
 
+import Chain from "@network/chain"
 import config from "@network/config";
-import { kovanSigner, rinkebySigner } from "@network/signer";
+import signer from "@network/signer";
 
 export default {
   networks: {
     kovan: {
-      url: config.kovan.url,
-      accounts: [kovanSigner.privateKey],
+      url: config[Chain.Kovan].url,
+      accounts: [signer[Chain.Kovan].privateKey],
     },
     rinkeby: {
-      url: config.rinkeby.url,
-      accounts: [rinkebySigner.privateKey],
+      url: config[Chain.Rinkeby].url,
+      accounts: [signer[Chain.Rinkeby].privateKey],
     },
   },
   solidity: {

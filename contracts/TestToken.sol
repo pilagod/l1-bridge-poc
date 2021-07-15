@@ -7,14 +7,14 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 contract TestToken is ERC20 {
     using SafeMath for uint256;
 
-    event Deposit(
+    event Deposited(
         uint256 indexed fromChainId,
         address indexed from,
         uint256 toChainId,
         address indexed to,
         uint256 amount
     );
-    event Withdraw(
+    event Withdrawn(
         uint256 fromChainId,
         address indexed from,
         uint256 indexed toChainId,
@@ -32,7 +32,7 @@ contract TestToken is ERC20 {
         uint256 _amount
     ) public returns (bool) {
         _mint(_to, _amount);
-        emit Deposit(_fromChainId, _from, getChainID(), _to, _amount);
+        emit Deposited(_fromChainId, _from, getChainID(), _to, _amount);
         return true;
     }
 
@@ -42,7 +42,7 @@ contract TestToken is ERC20 {
         uint256 _amount
     ) public returns (bool) {
         _burn(msg.sender, _amount);
-        emit Withdraw(getChainID(), msg.sender, _toChainId, _to, _amount);
+        emit Withdrawn(getChainID(), msg.sender, _toChainId, _to, _amount);
         return true;
     }
 
