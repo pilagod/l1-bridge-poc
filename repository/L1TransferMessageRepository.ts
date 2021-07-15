@@ -7,7 +7,9 @@ import L1TransferMessage, {
 import { getChain } from "@network/chain";
 
 export type L1TransferMessageQuery = {
+  type?: L1TransferMessageType;
   status?: L1TransferMessageStatus;
+  fromTxHash?: string;
 };
 
 export default class L1TransferMessageRepository {
@@ -28,6 +30,23 @@ export default class L1TransferMessageRepository {
     "created_at",
     "updated_at",
   ];
+
+  public find(
+    query: L1TransferMessageQuery
+  ): Promise<L1TransferMessage | undefined> {
+    return new Promise((resolve, reject) => {
+      const { where, params } = this.toSqlQuery(query);
+      const msgs: L1TransferMessage[] = [];
+      db.each(
+        `SELECT * FROM l1_transfer_message${
+          where ? ` WHERE ${where}` : ""
+        } LIMIT 1`,
+        params,
+        (_, row) => msgs.push(this.toL1TrasferMessage(row)),
+        (err) => (err ? reject(err) : resolve(msgs[0]))
+      );
+    });
+  }
 
   public findMany(query: L1TransferMessageQuery): Promise<L1TransferMessage[]> {
     return new Promise((resolve, reject) => {
@@ -73,9 +92,17 @@ export default class L1TransferMessageRepository {
   } {
     const conditions: string[] = [];
     const params: any[] = [];
+    if (query.type) {
+      conditions.push("type = ?");
+      params.push(query.type);
+    }
     if (query.status) {
-      conditions.push(`status = ?`);
+      conditions.push("status = ?");
       params.push(query.status);
+    }
+    if (query.fromTxHash) {
+      conditions.push("from_tx_hash = ?");
+      params.push(query.fromTxHash);
     }
     return {
       where: conditions.join(" AND "),
