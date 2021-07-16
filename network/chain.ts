@@ -9,10 +9,11 @@ export function getChain(chainIdOrName: string | number): Chain {
   if (!Chain[chainIdOrName as any]) {
     throw new Error(`Unsupported chain: ${chainIdOrName}`);
   }
-  if (typeof chainIdOrName === "string") {
+  const chain = parseInt(`${chainIdOrName}`, 10);
+  if (isNaN(chain)) {
     return Chain[chainIdOrName as any] as unknown as Chain;
   }
-  return chainIdOrName as Chain;
+  return chain as Chain;
 }
 
 export function getChains(): Chain[] {
