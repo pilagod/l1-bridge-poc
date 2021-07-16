@@ -6,12 +6,13 @@ enum Chain {
 }
 
 export function getChain(chainIdOrName: string | number): Chain {
-  if (!Chain[chainIdOrName as any]) {
-    throw new Error(`Unsupported chain: ${chainIdOrName}`);
-  }
   const chain = parseInt(`${chainIdOrName}`, 10);
   if (isNaN(chain)) {
-    return Chain[chainIdOrName as any] as unknown as Chain;
+    const chainName = chainIdOrName as string;
+    return Chain[
+      (chainName.charAt(0).toUpperCase() +
+        chainName.slice(1).toLowerCase()) as any
+    ] as unknown as Chain;
   }
   return chain as Chain;
 }

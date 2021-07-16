@@ -4,7 +4,7 @@ import Chain, { getChain } from "./chain";
 describe("chain", () => {
   describe("getChain", () => {
     it("should return chain from chain name", () => {
-      const chain = getChain("Rinkeby");
+      const chain = getChain("RiNkEbY");
       expect(chain).to.be.equal(Chain.Rinkeby);
     });
 
