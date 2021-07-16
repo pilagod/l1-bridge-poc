@@ -12,6 +12,7 @@
       "@abi/*": ["abi/*"],
       "@db": ["db"],
       "@deployments/*": ["deployments/*"],
+      "@logger": ["logger"],
       "@model/*": ["model/*"],
       "@network/*": ["network/*"],
       "@repository": ["repository"],

@@ -2,7 +2,6 @@
 artifacts
 cache
 db/local.db
-worker/db/*.db
-worker/*.log
+logger/logger.log
 node_modules
 typechain
