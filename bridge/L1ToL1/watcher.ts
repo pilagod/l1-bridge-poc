@@ -1,10 +1,9 @@
 import { BigNumber, Event } from "ethers";
-import L1TransferMessage, {
-  L1TransferMessageStatus,
-  L1TransferMessageType,
-} from "@model/L1TransferMessage";
+import L1WithdrawMessage, {
+  L1WithdrawMessageStatus,
+} from "@model/L1WithdrawMessage";
 import { TKN } from "@network/contract";
-import { l1TransferMessageRepository } from "@repository";
+import { l1WithdrawMessageRepository } from "@repository";
 
 export default async function watcher() {
   // TODO: sync old events
@@ -21,13 +20,14 @@ async function withdrawHandler(
   amount: BigNumber,
   event: Event
 ) {
-  await l1TransferMessageRepository.create(
-    new L1TransferMessage({
-      type: L1TransferMessageType.Withdraw,
-      status: L1TransferMessageStatus.Sent,
+  await l1WithdrawMessageRepository.create(
+    new L1WithdrawMessage({
+      status: L1WithdrawMessageStatus.Sent,
       from: {
         chain: fromChainId.toNumber(),
         address: from,
+      },
+      fromReceipt: {
         blockNumber: BigNumber.from(event.blockNumber),
         blockHash: event.blockHash,
         txHash: event.transactionHash,

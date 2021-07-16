@@ -5,10 +5,6 @@ enum Chain {
   Rinkeby = 4,
 }
 
-export function getChains(): Chain[] {
-  return toArray<Chain>(Chain);
-}
-
 export function getChain(chainIdOrName: string | number): Chain {
   if (!Chain[chainIdOrName as any]) {
     throw new Error(`Unsupported chain: ${chainIdOrName}`);
@@ -19,8 +15,16 @@ export function getChain(chainIdOrName: string | number): Chain {
   return chainIdOrName as Chain;
 }
 
+export function getChains(): Chain[] {
+  return toArray<Chain>(Chain);
+}
+
 export function getChainName(chain: Chain): string {
   return Chain[chain];
+}
+
+export function getChainRequiredConfirmations(_: Chain): number {
+  return 6;
 }
 
 export default Chain;

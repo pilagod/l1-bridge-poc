@@ -1,7 +1,7 @@
 CREATE TABLE l1_transfer_message (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     type VARCHAR(16) NOT NULL, -- Deposit, Withdraw
-    status VARCHAR(16) NOT NULL, -- Sent, Confirmed, Retryable, Done
+    status VARCHAR(16) NOT NULL, -- Sent, Reorganized, Confirmed, Done
     from_chain_id INTEGER NOT NULL,
     from_address VARCHAR(42) NOT NULL,
     from_block_number TEXT NOT NULL,
