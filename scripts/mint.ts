@@ -7,7 +7,10 @@ async function main() {
   const chain = parseChainArgs();
   const tx = await TKN[chain].mint(
     signer[chain].address,
-    ethers.utils.parseEther("100")
+    ethers.utils.parseEther("100"),
+    {
+      gasLimit: ethers.utils.parseUnits("1", "mwei"),
+    }
   );
   const receipt = await tx.wait();
   console.log("success:", receipt);
