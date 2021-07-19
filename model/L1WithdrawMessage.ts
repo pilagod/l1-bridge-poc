@@ -61,6 +61,10 @@ export default class L1WithdrawMessage {
     this.status = L1WithdrawMessageStatus.Reorganized;
   }
 
+  public tag(): string {
+    return `${this.fromReceipt.txHash} (${this.from.chain})`;
+  }
+
   public hasRequiredConfirmations(fromChainBlockNumber: BigNumber): boolean {
     return fromChainBlockNumber
       .sub(this.fromReceipt.blockNumber)

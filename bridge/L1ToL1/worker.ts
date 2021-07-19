@@ -1,4 +1,5 @@
 import { BigNumber } from "ethers";
+import logger from "@logger";
 import L1DepositMessage, {
   L1DepositMessageStatus,
 } from "@model/L1DepositMessage";
@@ -21,8 +22,10 @@ class BridgeWorker {
   public chainStatus: { [chain in Chain]?: { blockNumber: BigNumber } } = {};
 
   public async start() {
+    logger.info("Worker starts");
     await this.handleWithdrawMessages();
     await this.handleDepositMessages();
+    logger.info("Worker finishes");
   }
 
   /* withdraw */
@@ -37,21 +40,34 @@ class BridgeWorker {
   }
 
   private async handleSentWithdrawMessage(msg: L1WithdrawMessage) {
+    logger.info(`Handle withdraw ${msg.tag()}`);
     const { blockNumber } = await this.getChainStatus(msg.from.chain);
     if (!msg.hasRequiredConfirmations(blockNumber)) {
+      logger.info(
+        `Not enough confirmations at block ${blockNumber} for withdraw ${msg.tag()}`
+      );
       return;
     }
-    const { hash } = await this.getChainBlock(
+    const { hash: blockHash } = await this.getChainBlock(
       msg.from.chain,
       msg.fromReceipt.blockNumber
     );
     // reorgnaize withdraw message, let user to retry
-    if (msg.hasReorganized(hash)) {
+    if (msg.hasReorganized(blockHash)) {
+      logger.info(
+        `Withdraw ${msg.tag()} is reorganized at ${blockNumber}, expected block hash ${
+          msg.fromReceipt.blockHash
+        }, but got ${blockHash}`
+      );
       await this.reorganizeWithdraw(msg);
+      logger.info(`Withdraw ${msg.tag()} is reorganized`);
       return;
     }
-    await this.depositWithdraw(msg);
+    logger.info(`Deposit for withdraw ${msg.tag()}`);
+    const depositMsg = await this.depositWithdraw(msg);
+    logger.info(`Deposit successfully ${depositMsg.tag()}`);
     await this.confirmWithdraw(msg);
+    logger.info(`Withdraw ${msg.tag()} is confirmed`);
   }
 
   private async reorganizeWithdraw(msg: L1WithdrawMessage) {
@@ -59,7 +75,9 @@ class BridgeWorker {
     await l1WithdrawMessageRepository.update(msg);
   }
 
-  private async depositWithdraw(msg: L1WithdrawMessage) {
+  private async depositWithdraw(
+    msg: L1WithdrawMessage
+  ): Promise<L1DepositMessage> {
     const depositTx = await TKN[msg.to.chain].deposit(
       msg.from.chain,
       msg.from.address,
@@ -67,20 +85,20 @@ class BridgeWorker {
       msg.amount
     );
     const depositReceipt = await depositTx.wait();
-    await l1DepositMessageRepository.create(
-      new L1DepositMessage({
-        status: L1DepositMessageStatus.Sent,
-        from: msg.from,
-        fromReceipt: msg.fromReceipt,
-        to: msg.to,
-        toReceipt: {
-          blockNumber: BigNumber.from(depositReceipt.blockNumber),
-          blockHash: depositReceipt.blockHash,
-          txHash: depositReceipt.transactionHash,
-        },
-        amount: msg.amount,
-      })
-    );
+    const depositMsg = new L1DepositMessage({
+      status: L1DepositMessageStatus.Sent,
+      from: msg.from,
+      fromReceipt: msg.fromReceipt,
+      to: msg.to,
+      toReceipt: {
+        blockNumber: BigNumber.from(depositReceipt.blockNumber),
+        blockHash: depositReceipt.blockHash,
+        txHash: depositReceipt.transactionHash,
+      },
+      amount: msg.amount,
+    });
+    await l1DepositMessageRepository.create(depositMsg);
+    return depositMsg;
   }
 
   private async confirmWithdraw(msg: L1WithdrawMessage) {
@@ -107,6 +125,9 @@ class BridgeWorker {
   }
 
   private async depositRetry(msg: L1DepositMessage) {
+    const withdrawTag = msg.tag({ withdraw: true });
+    const retryTag = msg.tag();
+    logger.info(`Retry deposit ${retryTag} for withdraw ${withdrawTag}`);
     const tx = await TKN[msg.to.chain].deposit(
       msg.from.chain,
       msg.from.address,
@@ -120,6 +141,9 @@ class BridgeWorker {
       txHash: receipt.transactionHash,
     });
     await l1DepositMessageRepository.update(msg);
+    logger.info(
+      `Deposit retry successfully ${msg.tag()} in replace of ${retryTag} for withdraw ${withdrawTag}`
+    );
   }
 
   /* deposit - sent */
@@ -136,19 +160,30 @@ class BridgeWorker {
   private async handleSentDepositMessage(msg: L1DepositMessage) {
     const { blockNumber } = await this.getChainStatus(msg.to.chain);
     if (!msg.hasRequiredConfirmations(blockNumber)) {
+      logger.info(
+        `Not enough confirmations at block ${blockNumber} for deposit ${msg.tag()}`
+      );
       return;
     }
-    const { hash } = await this.getChainBlock(
+    const { hash: blockHash } = await this.getChainBlock(
       msg.from.chain,
       msg.fromReceipt.blockNumber
     );
     // reorganize deposit message, wait for next worker to handle it
-    if (msg.hasReorganized(hash)) {
+    if (msg.hasReorganized(blockHash)) {
+      logger.info(
+        `Deposit ${msg.tag()} is reorganized at ${blockNumber}, expected block hash ${
+          msg.toReceipt.blockHash
+        }, but got ${blockHash}`
+      );
       await this.reorganizeDeposit(msg);
+      logger.info(`Deposit ${msg.tag()} is reorganized`);
       return;
     }
     await this.finalizeDeposit(msg);
+    logger.info(`Deposit ${msg.tag()} is finalized`);
     await this.finalizeWithdraw(msg);
+    logger.info(`Withdraw ${msg.tag({ withdraw: true })} is finalized`);
   }
 
   private async reorganizeDeposit(msg: L1DepositMessage) {
@@ -167,9 +202,10 @@ class BridgeWorker {
       fromTxHash: msg.fromReceipt.txHash,
     });
     if (!withdrawMsg) {
-      console.log(
-        "No confirmed withdraw found for deposit:",
-        msg.fromReceipt.txHash
+      logger.error(
+        `No confirmed withdraw ${msg.tag({
+          withdraw: true,
+        })} found for deposit ${msg.tag()}`
       );
       return;
     }

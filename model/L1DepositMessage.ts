@@ -57,6 +57,13 @@ export default class L1DepositMessage {
     this.status = L1DepositMessageStatus.Reorganized;
   }
 
+  public tag(opts: { withdraw?: boolean } = {}): string {
+    if (opts.withdraw) {
+      return `${this.fromReceipt.txHash} (${this.from.chain})`;
+    }
+    return `${this.toReceipt.txHash} (${this.to.chain})`;
+  }
+
   public hasRequiredConfirmations(toChainBlockNumber: BigNumber) {
     return toChainBlockNumber
       .sub(this.toReceipt.blockNumber)
