@@ -4,14 +4,6 @@ Cross L1 bridge PoC
 
 ## Setup
 
-### Installation
-
-```sh
-yarn install
-yarn build
-yarn migration:up
-```
-
 ### Environment Variables
 
 Check `.env.example` for required environment variables and fill them in your own `.env`.
@@ -30,7 +22,15 @@ You need to get ETH to the wallet set in environment for chains you want to oper
 - Kovan faucet: [https://github.com/kovan-testnet/faucet](https://github.com/kovan-testnet/faucet)
 - Rinkeby faucet: [https://faucet.rinkeby.io](https://faucet.rinkeby.io)
 
-## L1 Bridge
+## Installation
+
+```sh
+yarn install
+yarn build
+yarn migration:up
+```
+
+## Bridge
 
 Start a L1 bridge with following command:
 
