@@ -2,30 +2,44 @@ import yargs from "yargs";
 import Chain, { getChain } from "@network/chain";
 
 export function parseChainArgs(): Chain {
-  const { chain, chainId } = yargs
+  const { chain } = yargs
     .option("chain", {
       alias: "c",
-      description: "Chain name",
+      description: "Chain name or id",
       type: "string",
-    })
-    .option("chainId", {
-      alias: "i",
-      description: "Chain id",
-      type: "number",
+      demandOption: true,
     })
     .help()
-    .alias("help", "h")
-    .check(({ chain, chainId }) => {
-      if (!chain && !chainId) {
-        throw new Error("At least one of chain or chain id is required");
-      }
-      return true;
-    }).argv as {
-    chain?: string;
-    chainId?: number;
+    .alias("help", "h").argv as {
+    chain: string;
   };
-  if (chainId) {
-    return chainId as Chain;
-  }
-  return getChain(chain!);
+  return getChain(chain);
+}
+
+export function parseCrossChainArgs(): {
+  from: Chain;
+  to: Chain;
+} {
+  const { from, to } = yargs
+    .option("from", {
+      alias: "f",
+      description: "From chain name or id",
+      type: "string",
+      demandOption: true,
+    })
+    .option("to", {
+      alias: "t",
+      description: "To chain name or id",
+      type: "string",
+      demandOption: true,
+    })
+    .help()
+    .alias("help", "h").argv as {
+    from: string;
+    to: string;
+  };
+  return {
+    from: getChain(from),
+    to: getChain(to),
+  };
 }
