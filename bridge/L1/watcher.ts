@@ -7,6 +7,7 @@ import L1WithdrawMessage, {
 import Chain, { getChain, getChainName } from "@network/chain";
 import { TKN } from "@network/contract";
 import provider from "@network/provider";
+import signer from "@network/signer";
 import {
   chainStatusRepository,
   l1WithdrawMessageRepository,
@@ -32,7 +33,7 @@ async function syncEvents(chain: Chain, tkn: TestToken) {
   logger.info(`Sync events for chain ${getChainName(chain)}(${chain})`);
   const chainStatus = await getChainStatus(chain);
   const events = await tkn.queryFilter(
-    tkn.filters.Withdrawn(),
+    tkn.filters.Withdrawn(null, signer[chain].address),
     chainStatus.blockNumberSynced.toNumber() + 1
   );
   if (events.length > 0) {
@@ -75,6 +76,10 @@ async function withdrawHandler(
   amount: BigNumber,
   event: Event
 ) {
+  const fromChain = getChain(fromChainId.toString());
+  if (signer[fromChain].address !== from) {
+    return;
+  }
   logger.info("Withdraw request received:", {
     fromChainId,
     from,
@@ -103,10 +108,7 @@ async function withdrawHandler(
     })
   );
   await chainStatusRepository.update(
-    new ChainStatus(
-      getChain(fromChainId.toString()),
-      BigNumber.from(event.blockNumber)
-    )
+    new ChainStatus(getChain(fromChain), BigNumber.from(event.blockNumber))
   );
   logger.info("Withdraw request accepted");
 }
