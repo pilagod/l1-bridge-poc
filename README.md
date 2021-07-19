@@ -28,7 +28,7 @@ Check `.env.example` for required environment variables and fill them in your ow
 You need to get ETH to the wallet set in environment for chains you want to operate.
 
 - Kovan faucet: [https://github.com/kovan-testnet/faucet](https://github.com/kovan-testnet/faucet)
-- Rinkeby faucet: [https://faucet.rinkeby.io/](https://faucet.rinkeby.io/)
+- Rinkeby faucet: [https://faucet.rinkeby.io](https://faucet.rinkeby.io)
 
 ## L1 Bridge
 
