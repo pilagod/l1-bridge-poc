@@ -2,10 +2,9 @@ import { Wallet } from "ethers";
 import Chain, { getChains } from "./chain";
 import provider from "./provider";
 
-const walletAddress = process.env.WALLET_ADDRESS;
 const walletPrivateKey = process.env.WALLET_PRIVATE_KEY;
 
-if (!walletAddress || !walletPrivateKey) {
+if (!walletPrivateKey) {
   console.log("wallet not set");
   process.exit(1);
 }

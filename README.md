@@ -8,8 +8,12 @@ Cross L1 bridge PoC
 
 Check `.env.example` for required environment variables and fill them in your own `.env`.
 
-- `WALLET_ADDRESS`: Wallet address shared for L1
+Wallet:
+
 - `WALLET_PRIVATE_KEY`: Wallet private key shared for L1
+
+RPC:
+
 - `KOVAN_RPC_URL`: Kovan rpc url
 - `RINKEBY_RPC_URL`: Rinkeby rpc url
 
