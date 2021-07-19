@@ -65,7 +65,7 @@ export async function update(msg: L1TransferMessage): Promise<void> {
     const { fields, values } = toSqlFieldsAndValues(msg);
     const sqlFields = fields.join(" = ?, ") + " = ?";
     db.run(
-      `UPDATE l1_message SET ${sqlFields} WHERE id = ?`,
+      `UPDATE l1_transfer_message SET ${sqlFields} WHERE id = ?`,
       [...values, msg.id],
       (err) => (err ? reject(err) : resolve())
     );
