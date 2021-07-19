@@ -16,10 +16,10 @@ yarn migration:up
 
 Check `.env.example` for required environment variables and fill them in your own `.env`.
 
-`WALLET_ADDRESS`: Wallet address shared for L1
-`WALLET_PRIVATE_KEY`: Wallet private key shared for L1
-`KOVAN_RPC_URL`: Kovan rpc url
-`RINKEBY_RPC_URL`: Rinkeby rpc url
+- `WALLET_ADDRESS`: Wallet address shared for L1
+- `WALLET_PRIVATE_KEY`: Wallet private key shared for L1
+- `KOVAN_RPC_URL`: Kovan rpc url
+- `RINKEBY_RPC_URL`: Rinkeby rpc url
 
 > This project is aim for EVM-compatible chains, currently it supports `Kovan` and `Rinkeby`. Chains can be expanded easily, please refer to [Expand Chains](#expand-chains) for more details.
 
