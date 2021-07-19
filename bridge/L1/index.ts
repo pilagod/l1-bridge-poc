@@ -10,7 +10,7 @@ export async function main() {
   } catch (e) {
     logger.error(e);
   }
-  schedule.scheduleJob("*/5 * * * *", worker);
+  schedule.scheduleJob("*/3 * * * *", worker);
 }
 
 main();
