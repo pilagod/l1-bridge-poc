@@ -11,7 +11,7 @@ import { l1WithdrawMessageRepository } from "@repository";
 import { TestToken } from "@typechain";
 
 export default async function watcher() {
-  logger.info("Watcher initializing");
+  logger.info("========== Watcher initializing ==========");
   for (const [key, tkn] of Object.entries(TKN)) {
     const chain = getChain(key);
     await syncEvents(chain, tkn);
@@ -22,7 +22,7 @@ export default async function watcher() {
     );
     tkn.on("Withdrawn", withdrawHandler);
   }
-  logger.info("Watcher starts");
+  logger.info("========== Watcher starts ==========");
 }
 
 async function syncEvents(chain: Chain, tkn: TestToken) {

@@ -22,10 +22,10 @@ class BridgeWorker {
   public chainStatus: { [chain in Chain]?: { blockNumber: BigNumber } } = {};
 
   public async start() {
-    logger.info("Worker starts");
+    logger.info("========== Worker starts ==========");
     await this.handleWithdrawMessages();
     await this.handleDepositMessages();
-    logger.info("Worker finishes");
+    logger.info("========== Worker finishes ==========");
   }
 
   /* withdraw */

@@ -8,7 +8,10 @@ async function main() {
   const tx = await TKN[from].withdraw(
     to,
     signer[to].address,
-    ethers.utils.parseEther("10")
+    ethers.utils.parseEther("10"),
+    {
+      gasLimit: ethers.utils.parseUnits("1", "mwei"),
+    }
   );
   const receipt = await tx.wait();
   console.log("success:", receipt);
