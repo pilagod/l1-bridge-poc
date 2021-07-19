@@ -6,4 +6,8 @@ export default class ChainStatus {
     public chain: Chain,
     public blockNumberSynced: BigNumber
   ) {}
+
+  public sync(blockNumber: BigNumber) {
+    this.blockNumberSynced = blockNumber;
+  }
 }

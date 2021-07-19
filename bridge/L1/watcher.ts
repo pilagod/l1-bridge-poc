@@ -41,7 +41,6 @@ async function syncEvents(chain: Chain, tkn: TestToken) {
     logger.info("Events are up to date");
   }
   for (const event of events) {
-    logger.info("Sync event: ", event);
     await withdrawHandler(
       event.args[0],
       event.args[1],
@@ -51,36 +50,19 @@ async function syncEvents(chain: Chain, tkn: TestToken) {
       event
     );
   }
-  if (!chainStatus.blockNumber.eq(chainStatus.blockNumberSynced)) {
-    await chainStatusRepository.update(
-      new ChainStatus(chain, chainStatus.blockNumber)
-    );
-  }
   logger.info(
     `Sync events for chain ${getChainName(chain)}(${chain}) finishes`
   );
 }
 
-async function getChainStatus(chain: Chain) {
-  const localChainStatus = await chainStatusRepository.find(chain);
+async function getChainStatus(chain: Chain): Promise<ChainStatus> {
   const chainBlockNumber = BigNumber.from(
     await provider[chain].getBlockNumber()
   );
-  const chainStatus: {
-    chain: Chain;
-    blockNumber: BigNumber;
-    blockNumberSynced: BigNumber;
-  } = {
-    chain,
-    blockNumber: chainBlockNumber,
-    blockNumberSynced: localChainStatus
-      ? localChainStatus.blockNumberSynced
-      : chainBlockNumber,
-  };
-  if (!localChainStatus) {
-    await chainStatusRepository.create(
-      new ChainStatus(chainStatus.chain, chainStatus.blockNumberSynced)
-    );
+  let chainStatus = await chainStatusRepository.find(chain);
+  if (!chainStatus) {
+    chainStatus = new ChainStatus(chain, chainBlockNumber);
+    await chainStatusRepository.create(chainStatus);
   }
   return chainStatus;
 }
@@ -101,29 +83,30 @@ async function withdrawHandler(
     amount: ethers.utils.formatEther(amount),
     event,
   });
-  try {
-    await l1WithdrawMessageRepository.create(
-      new L1WithdrawMessage({
-        status: L1WithdrawMessageStatus.Sent,
-        from: {
-          chain: fromChainId.toNumber(),
-          address: from,
-        },
-        fromReceipt: {
-          blockNumber: BigNumber.from(event.blockNumber),
-          blockHash: event.blockHash,
-          txHash: event.transactionHash,
-        },
-        to: {
-          chain: toChainId.toNumber(),
-          address: to,
-        },
-        amount,
-      })
-    );
-  } catch (e) {
-    logger.error(e);
-    throw e;
-  }
+  await l1WithdrawMessageRepository.create(
+    new L1WithdrawMessage({
+      status: L1WithdrawMessageStatus.Sent,
+      from: {
+        chain: fromChainId.toNumber(),
+        address: from,
+      },
+      fromReceipt: {
+        blockNumber: BigNumber.from(event.blockNumber),
+        blockHash: event.blockHash,
+        txHash: event.transactionHash,
+      },
+      to: {
+        chain: toChainId.toNumber(),
+        address: to,
+      },
+      amount,
+    })
+  );
+  await chainStatusRepository.update(
+    new ChainStatus(
+      getChain(fromChainId.toString()),
+      BigNumber.from(event.blockNumber)
+    )
+  );
   logger.info("Withdraw request accepted");
 }

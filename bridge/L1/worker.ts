@@ -25,7 +25,6 @@ class BridgeWorker {
     logger.info("========== Worker starts ==========");
     await this.handleWithdrawMessages();
     await this.handleDepositMessages();
-    await this.updateChainStatus();
     logger.info("========== Worker finishes ==========");
   }
 
@@ -246,10 +245,6 @@ class BridgeWorker {
     }
     return this.chainStatus[chain]!;
   }
-
-  /* chain status */
-
-  private async updateChainStatus() {}
 }
 
 function formatDepositTx(msg: L1DepositMessage | L1WithdrawMessage): string {
