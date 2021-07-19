@@ -1,13 +1,16 @@
 import { BigNumber, Event, ethers } from "ethers";
-import db from "@db";
 import logger from "@logger";
+import ChainStatus from "@model/ChainStatus";
 import L1WithdrawMessage, {
   L1WithdrawMessageStatus,
 } from "@model/L1WithdrawMessage";
 import Chain, { getChain, getChainName } from "@network/chain";
 import { TKN } from "@network/contract";
 import provider from "@network/provider";
-import { l1WithdrawMessageRepository } from "@repository";
+import {
+  chainStatusRepository,
+  l1WithdrawMessageRepository,
+} from "@repository";
 import { TestToken } from "@typechain";
 
 export default async function watcher() {
@@ -49,10 +52,9 @@ async function syncEvents(chain: Chain, tkn: TestToken) {
     );
   }
   if (!chainStatus.blockNumber.eq(chainStatus.blockNumberSynced)) {
-    await updateChainStatus({
-      chain,
-      blockNumberSynced: chainStatus.blockNumber,
-    });
+    await chainStatusRepository.update(
+      new ChainStatus(chain, chainStatus.blockNumber)
+    );
   }
   logger.info(
     `Sync events for chain ${getChainName(chain)}(${chain}) finishes`
@@ -60,15 +62,7 @@ async function syncEvents(chain: Chain, tkn: TestToken) {
 }
 
 async function getChainStatus(chain: Chain) {
-  const chainBlockNumberSynced: BigNumber | undefined = await new Promise(
-    (resolve, reject) => {
-      db.get("SELECT * FROM chain_status WHERE id = ?", chain, (err, row) => {
-        err
-          ? reject(err)
-          : resolve(row ? BigNumber.from(row.block_number_synced) : undefined);
-      });
-    }
-  );
+  const localChainStatus = await chainStatusRepository.find(chain);
   const chainBlockNumber = BigNumber.from(
     await provider[chain].getBlockNumber()
   );
@@ -79,31 +73,16 @@ async function getChainStatus(chain: Chain) {
   } = {
     chain,
     blockNumber: chainBlockNumber,
-    blockNumberSynced: chainBlockNumberSynced || chainBlockNumber,
+    blockNumberSynced: localChainStatus
+      ? localChainStatus.blockNumberSynced
+      : chainBlockNumber,
   };
-  if (!chainBlockNumberSynced) {
-    await new Promise((resolve, reject) => {
-      db.run(
-        `INSERT INTO chain_status (id, block_number_synced) VALUES (?, ?)`,
-        [chainStatus.chain, chainStatus.blockNumberSynced],
-        (err) => (err ? reject(err) : resolve(null))
-      );
-    });
+  if (!localChainStatus) {
+    await chainStatusRepository.create(
+      new ChainStatus(chainStatus.chain, chainStatus.blockNumberSynced)
+    );
   }
   return chainStatus;
-}
-
-async function updateChainStatus(data: {
-  chain: Chain;
-  blockNumberSynced: BigNumber;
-}) {
-  await new Promise((resolve, reject) => {
-    db.run(
-      `UPDATE chain_status SET block_number_synced = ? WHERE id = ?`,
-      [data.blockNumberSynced, data.chain],
-      (err) => (err ? reject(err) : resolve(null))
-    );
-  });
 }
 
 async function withdrawHandler(
