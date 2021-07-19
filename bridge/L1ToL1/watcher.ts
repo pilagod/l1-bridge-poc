@@ -1,28 +1,44 @@
-import { BigNumber, Event } from "ethers";
+import { BigNumber, Event, ethers } from "ethers";
 import db from "@db";
+import logger from "@logger";
 import L1WithdrawMessage, {
   L1WithdrawMessageStatus,
 } from "@model/L1WithdrawMessage";
-import Chain from "@network/chain";
+import Chain, { getChain, getChainName } from "@network/chain";
 import { TKN } from "@network/contract";
 import provider from "@network/provider";
 import { l1WithdrawMessageRepository } from "@repository";
 import { TestToken } from "@typechain";
 
 export default async function watcher() {
-  for (const [chain, tkn] of Object.entries(TKN)) {
-    await syncEvents(chain as any, tkn);
+  logger.info("Watcher warms up");
+  for (const [key, tkn] of Object.entries(TKN)) {
+    const chain = getChain(key);
+    await syncEvents(chain, tkn);
+    logger.info(
+      `Listen to Withdrawn event for TKN on chain ${getChainName(
+        chain
+      )}(${chain})`
+    );
     tkn.on("Withdrawn", withdrawHandler);
   }
+  logger.info("Watcher starts");
 }
 
 async function syncEvents(chain: Chain, tkn: TestToken) {
+  logger.info(`Sync events for chain ${getChainName(chain)}(${chain})`);
   const chainStatus = await getChainStatus(chain);
   const events = await tkn.queryFilter(
     tkn.filters.Withdrawn(),
-    chainStatus.blockNumberSynced.toString()
+    chainStatus.blockNumberSynced.toNumber() + 1
   );
+  if (events.length > 0) {
+    logger.info(`${events.length} events need to sync`);
+  } else {
+    logger.info("Events are up to date");
+  }
   for (const event of events) {
+    logger.info("Sync event: ", event);
     await withdrawHandler(
       event.args[0],
       event.args[1],
@@ -38,6 +54,9 @@ async function syncEvents(chain: Chain, tkn: TestToken) {
       blockNumberSynced: chainStatus.blockNumber,
     });
   }
+  logger.info(
+    `Sync events for chain ${getChainName(chain)}(${chain}) finishes`
+  );
 }
 
 async function getChainStatus(chain: Chain) {
@@ -95,23 +114,37 @@ async function withdrawHandler(
   amount: BigNumber,
   event: Event
 ) {
-  await l1WithdrawMessageRepository.create(
-    new L1WithdrawMessage({
-      status: L1WithdrawMessageStatus.Sent,
-      from: {
-        chain: fromChainId.toNumber(),
-        address: from,
-      },
-      fromReceipt: {
-        blockNumber: BigNumber.from(event.blockNumber),
-        blockHash: event.blockHash,
-        txHash: event.transactionHash,
-      },
-      to: {
-        chain: toChainId.toNumber(),
-        address: to,
-      },
-      amount,
-    })
-  );
+  logger.info("Withdraw request received:", {
+    fromChainId,
+    from,
+    toChainId,
+    to,
+    amount: ethers.utils.formatEther(amount),
+    event,
+  });
+  try {
+    await l1WithdrawMessageRepository.create(
+      new L1WithdrawMessage({
+        status: L1WithdrawMessageStatus.Sent,
+        from: {
+          chain: fromChainId.toNumber(),
+          address: from,
+        },
+        fromReceipt: {
+          blockNumber: BigNumber.from(event.blockNumber),
+          blockHash: event.blockHash,
+          txHash: event.transactionHash,
+        },
+        to: {
+          chain: toChainId.toNumber(),
+          address: to,
+        },
+        amount,
+      })
+    );
+  } catch (e) {
+    logger.error(e);
+    throw e;
+  }
+  logger.info("Withdraw request accepted");
 }
