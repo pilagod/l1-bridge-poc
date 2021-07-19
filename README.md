@@ -21,7 +21,7 @@ Check `.env.example` for required environment variables and fill them in your ow
 - `KOVAN_RPC_URL`: Kovan rpc url
 - `RINKEBY_RPC_URL`: Rinkeby rpc url
 
-> This project is aim for EVM-compatible chains, currently it supports `Kovan` and `Rinkeby`. Chains can be expanded easily, please refer to [Expand Chains](#expand-chains) for more details.
+> This project is aim for EVM-compatible chains, currently it supports `Kovan` and `Rinkeby`. Chains can be expanded easily, please refer to [Expand Chain](#expand-chain) for more details.
 
 ### Prepare ETH
 
@@ -77,7 +77,7 @@ yarn execute scripts/withdraw.ts -f 4 -t 42
 
 Go and check the terminal running bridge or `logger/logger.log` to see what is happening.
 
-## Expand Chains
+## Expand Chain
 
 To support new EVM-compatible chain, here are the steps:
 
