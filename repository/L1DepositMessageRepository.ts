@@ -1,45 +1,46 @@
 import L1DepositMessage, {
   L1DepositMessageStatus,
 } from "@model/L1DepositMessage";
-import {
+import L1TransferMessageRepository, {
   L1TransferMessageType,
-  fillMessage,
-  find,
-  findMany,
-  create,
-  update,
-} from "./util";
+} from "./L1TransferMessageRepository";
 
 export type L1DepositMessageQuery = {
   status?: L1DepositMessageStatus;
 };
 
 export default class L1DepositMessageRepository {
+  private l1TrasferMessageRepository = new L1TransferMessageRepository();
+
   public async find(
     query: L1DepositMessageQuery
   ): Promise<L1DepositMessage | undefined> {
-    const row = await find({
+    const row = await this.l1TrasferMessageRepository.find({
       type: L1TransferMessageType.Deposit,
       status: query.status,
     });
-    return row ? fillMessage(L1DepositMessage, row) : undefined;
+    return row
+      ? this.l1TrasferMessageRepository.fillMessage(L1DepositMessage, row)
+      : undefined;
   }
 
   public async findMany(
     query: L1DepositMessageQuery
   ): Promise<L1DepositMessage[]> {
-    const rows = await findMany({
+    const rows = await this.l1TrasferMessageRepository.findMany({
       type: L1TransferMessageType.Deposit,
       status: query.status,
     });
-    return rows.map((row) => fillMessage(L1DepositMessage, row));
+    return rows.map((row) =>
+      this.l1TrasferMessageRepository.fillMessage(L1DepositMessage, row)
+    );
   }
 
   public async create(msg: L1DepositMessage) {
-    await create(msg);
+    await this.l1TrasferMessageRepository.create(msg);
   }
 
   public async update(msg: L1DepositMessage) {
-    await update(msg);
+    await this.l1TrasferMessageRepository.update(msg);
   }
 }
